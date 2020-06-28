@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/recipes"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ _recipe.title | titlecase }} Recipe</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="_recipe">
+  <ion-grid class="ion-no-padding">
+    <ion-row>
+      <ion-col no-padding>
+        <ion-img [src]="_recipe.image_url"></ion-img>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <h1 class="ion-text-center">{{ _recipe.title }}</h1>
+        <ion-list>
+          <ion-item *ngFor="let gr of _recipe.gradients">{{ gr }}</ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
