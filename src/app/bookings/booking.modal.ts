@@ -4,6 +4,11 @@ export class BookingModal {
         public placeID: string,
         public userID: string,
         public placeTitle: string,
-        public guestNumber: number
+        public placeImage: string,
+        public firstname: string,
+        public lastname: string,
+        public no_of_guest: number,
+        public date_from: Date,
+        public date_to: Date
     ) {}
 }

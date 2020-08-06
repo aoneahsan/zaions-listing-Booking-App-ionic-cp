@@ -1,9 +1,76 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>auth</ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>{{ isLogin ? 'Login' : 'Signup' }}</ion-title>
+    </ion-toolbar>
 </ion-header>
 
-<ion-content>
-<ion-button color="primary" (click)="onLogin()">Login</ion-button>
+<ion-content class="ion-padding">
+    <form #f="ngForm" (ngSubmit)="onSubmit(f.value)">
+        <ion-grid>
+            <ion-row>
+                <ion-col class="ion-no-padding" size-sm="6" offset-sm="3">
+                    <ion-item>
+                        <ion-label position="floating">Email</ion-label>
+                        <ion-input
+                            type="email"
+                            required
+                            email
+                            ngModel
+                            name="email"
+                            #emailCtl="ngModel"
+                        ></ion-input>
+                    </ion-item>
+                    <ion-item
+                        *ngIf="!emailCtl.valid && emailCtl.touched"
+                        lines="none"
+                        class="ion-no-padding"
+                    >
+                        <ion-label>Please Enter Valid Email.</ion-label>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col class="ion-no-padding" size-sm="6" offset-sm="3">
+                    <ion-item>
+                        <ion-label position="floating">Password</ion-label>
+                        <ion-input
+                            type="password"
+                            required
+                            minlength="6"
+                            ngModel
+                            name="password"
+                            #passwordCtl="ngModel"
+                        ></ion-input>
+                    </ion-item>
+                    <ion-item
+                        *ngIf="passwordCtl.invalid && passwordCtl.touched"
+                        lines="none"
+                        class="ion-no-padding"
+                    >
+                        <ion-label>Password Should be Min 6.</ion-label>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col class="ion-no-padding" size-sm="6" offset-sm="3">
+                    <ion-button
+                        (click)="onSwitchAuthMode()"
+                        expand="full"
+                        fill="none"
+                        type="button"
+                    >
+                        Switch to {{ isLogin ? 'Signup' : 'Login' }}
+                    </ion-button>
+                    <ion-button
+                        expand="block"
+                        color="primary"
+                        type="submit"
+                        [disabled]="f.invalid"
+                    >
+                        {{ isLogin ? 'Login' : 'Signup' }}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </form>
 </ion-content>

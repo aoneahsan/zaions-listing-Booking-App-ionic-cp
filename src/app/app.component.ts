@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
-import { Platform, NavController } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Platform, NavController, LoadingController } from '@ionic/angular';
+import { Capacitor, Plugins } from '@capacitor/core';
 import { AuthService } from './auth/auth.service';
 
 @Component({
@@ -13,23 +12,32 @@ import { AuthService } from './auth/auth.service';
 export class AppComponent {
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
     private _navCtl: NavController,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private _loadingCtl: LoadingController
   ) {
     this.initializeApp();
   }
 
   initializeApp() {
     this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
+      if (Capacitor.isPluginAvailable('SplashScreen')) {
+        Plugins.SplashScreen.hide();
+      }
     });
   }
 
   onLogout() {
     this._authService.logout();
+    this._loadingCtl.create({ keyboardClose: true, message: "Loading..." }).then(
+      res => {
+        res.present();
+        setTimeout(() => {
+          res.dismiss();
+          this._navCtl.navigateForward('/auth');
+        }, 2000);
+      }
+    );
   }
   
 }

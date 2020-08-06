@@ -1,8 +1,24 @@
+import { PlaceLocation } from './location.modal';
 // Core Imports 
 import { Injectable } from '@angular/core';
 
 // Models & Interfaces
 import { PlaceModel } from './place-model';
+import { BehaviorSubject } from 'rxjs';
+import { tap, take, delay, switchMap, map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+
+interface PlaceServerModal {// server response data format
+  id: string,
+  name: string,
+  description: string,
+  image: string,
+  price: number,
+  available_from: string,
+  available_to: string,
+  userID: string,
+  location: PlaceLocation
+}
 
 @Injectable({
   providedIn: 'root'
@@ -10,39 +26,92 @@ import { PlaceModel } from './place-model';
 
 export class PlacesService {
 
-  private _places: PlaceModel[] = [
-    new PlaceModel(
-      'p1',
-      'Manhattan Mansion',
-      'In the heart of New York City.',
-      'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
-      149.99
-    ),
-    new PlaceModel(
-      'p2',
-      "L'Amour Toujours",
-      'A romantic place in Paris!',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Paris_Night.jpg/1024px-Paris_Night.jpg',
-      189.99
-    ),
-    new PlaceModel(
-      'p3',
-      'The Foggy Palace',
-      'Not your average city trip!',
-      'https://upload.wikimedia.org/wikipedia/commons/0/01/San_Francisco_with_two_bridges_and_the_fog.jpg',
-      99.99
-    )
-  ]; Ï
+  private _places: BehaviorSubject<PlaceModel[]> = new BehaviorSubject<PlaceModel[]>(null);
 
-  constructor() { }
+  constructor(private _http: HttpClient) { }
 
-  get places() {
-    return [...this._places];
+  fetchPlaces() {
+    return this._http.get<{ [key: string]: PlaceServerModal }>(
+      "https://ionic-course-project-a4b04.firebaseio.com/offered-places.json"
+    ).pipe(
+      map(res => {
+        let places = [];
+        for (const key in res) {
+          if (res.hasOwnProperty(key)) {
+            let newPlace: PlaceModel = new PlaceModel(
+              key,
+              res[key].name,
+              res[key].description,
+              res[key].image,
+              res[key].price,
+              new Date(res[key].available_from),
+              new Date(res[key].available_to),
+              res[key].userID,
+              res[key].location
+            );
+            places.push(newPlace);
+          }
+        }
+        return places;
+        // return [];
+      }),
+      tap(places => {
+        this.setPlaces(places);
+      })
+    );
+  }
+
+  getPlaces() {
+    return this._places;
+  }
+
+  setPlaces(data: PlaceModel[]) {
+    this._places.next(data);
   }
 
   getPlace(id: string) {
+    let placesData = this._places.value;
     return {
-      ...this._places.find(p => p.id === id)
+      ...placesData.find(p => p.id === id)
     };
+  }
+
+  addPlace(data: PlaceModel) {
+    let generatedID: string;
+    return this._http.post<{ name: string }>(
+      "https://ionic-course-project-a4b04.firebaseio.com/offered-places.json",
+      data
+    ).pipe(
+      switchMap(res => {
+        generatedID = res.name;
+        return this._places;
+      }),
+      take(1),
+      tap(places => {
+        places.push(data);
+        this.setPlaces(places);
+      }));
+  }
+
+  editPlace(data: PlaceModel) {
+    let updatedPlaces: PlaceModel[];
+    return this._places.pipe(
+      take(1),
+      switchMap(places => {
+        let placeIndex = places.findIndex(place => {
+          return place.id == data.id;
+        });
+        places[placeIndex] = data;
+        updatedPlaces = places;
+        return this._http.put<any>(
+          `https://ionic-course-project-a4b04.firebaseio.com/offered-places/${data.id}.json`,
+          { ...data, id: null }
+        );
+      }),
+      tap(
+        () => {
+          this.setPlaces(updatedPlaces);
+        }
+      ));
   }
 }

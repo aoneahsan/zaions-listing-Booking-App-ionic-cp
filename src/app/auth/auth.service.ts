@@ -7,6 +7,9 @@ import { NavController } from '@ionic/angular';
 export class AuthService {
 
   private _isUserAutheticated: boolean = true;
+  // private _isUserAutheticated: boolean = false;
+
+  private _userID: string = 'abcd';
 
   constructor(private _navCtl: NavController) { }
 
@@ -14,14 +17,16 @@ export class AuthService {
     return this._isUserAutheticated;
   }
 
+  get UserID() {
+    return this._userID;
+  }
+
   login() {
     this._isUserAutheticated = true;
-    this._navCtl.navigateForward('/places/tabs/discover');
   }
 
   logout() {
     this._isUserAutheticated = false;
-    this._navCtl.navigateForward('/auth');
   }
 
 }

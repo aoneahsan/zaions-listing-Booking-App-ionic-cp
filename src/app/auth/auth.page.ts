@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { NavController, LoadingController } from '@ionic/angular';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -9,13 +9,33 @@ import { AuthService } from './auth.service';
 })
 export class AuthPage implements OnInit {
 
-  constructor(private _navCtl: NavController, private _authService: AuthService) { }
+  isLogin: boolean = true;
+
+  constructor(
+    private _navCtl: NavController,
+    private _authService: AuthService,
+    private _loadingCtl: LoadingController
+  ) { }
 
   ngOnInit() {
   }
 
-  onLogin() {
+  onSubmit(data) {
+    console.log("Auth Data = ", data);
     this._authService.login();
+    this._loadingCtl.create({ keyboardClose: true, message: "Loading..." }).then(
+      res => {
+        res.present();
+        setTimeout(() => {
+          res.dismiss();
+          this._navCtl.navigateForward('/places/tabs/discover');
+        }, 2000);
+      }
+    );
+  }
+
+  onSwitchAuthMode() {
+    this.isLogin = !this.isLogin;
   }
 
 }
