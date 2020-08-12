@@ -7,6 +7,7 @@ import { PlaceModel } from './place-model';
 import { BehaviorSubject } from 'rxjs';
 import { tap, take, delay, switchMap, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth/auth.service';
 
 interface PlaceServerModal {// server response data format
   id: string,
@@ -28,12 +29,20 @@ export class PlacesService {
 
   private _places: BehaviorSubject<PlaceModel[]> = new BehaviorSubject<PlaceModel[]>(null);
 
-  constructor(private _http: HttpClient) { }
+  constructor(
+    private _http: HttpClient,
+    private _authService: AuthService
+  ) { }
 
   fetchPlaces() {
-    return this._http.get<{ [key: string]: PlaceServerModal }>(
-      "https://ionic-course-project-a4b04.firebaseio.com/offered-places.json"
-    ).pipe(
+    return this._authService.userTokken.pipe(
+      switchMap(
+        tokken => {
+          return this._http.get<{ [key: string]: PlaceServerModal }>(
+            `https://ionic-course-project-a4b04.firebaseio.com/offered-places.json?auth=${tokken}`
+          );
+        }
+      ),
       map(res => {
         let places = [];
         for (const key in res) {
@@ -78,10 +87,18 @@ export class PlacesService {
 
   addPlace(data: PlaceModel) {
     let generatedID: string;
-    return this._http.post<{ name: string }>(
-      "https://ionic-course-project-a4b04.firebaseio.com/offered-places.json",
-      data
-    ).pipe(
+    return this._authService.userTokken.pipe(
+      switchMap(tokken => {
+        if (!!tokken) {
+          return this._http.post<{ name: string }>(
+            `https://ionic-course-project-a4b04.firebaseio.com/offered-places.json?auth=${tokken}`,
+            data
+          );
+        }
+        else {
+          this._authService.logout();
+        }
+      }),
       switchMap(res => {
         generatedID = res.name;
         return this._places;
@@ -90,12 +107,23 @@ export class PlacesService {
       tap(places => {
         places.push(data);
         this.setPlaces(places);
-      }));
+      })
+    );
   }
 
   editPlace(data: PlaceModel) {
     let updatedPlaces: PlaceModel[];
-    return this._places.pipe(
+    let userTokken;
+    return this._authService.userTokken.pipe(
+      switchMap(tokken => {
+        if (!!tokken) {
+          userTokken = tokken;
+        }
+        else {
+          this._authService.logout();
+        }
+        return this._places;
+      }),
       take(1),
       switchMap(places => {
         let placeIndex = places.findIndex(place => {
@@ -104,7 +132,7 @@ export class PlacesService {
         places[placeIndex] = data;
         updatedPlaces = places;
         return this._http.put<any>(
-          `https://ionic-course-project-a4b04.firebaseio.com/offered-places/${data.id}.json`,
+          `https://ionic-course-project-a4b04.firebaseio.com/offered-places/${data.id}.json?auth=${userTokken}`,
           { ...data, id: null }
         );
       }),
@@ -112,6 +140,7 @@ export class PlacesService {
         () => {
           this.setPlaces(updatedPlaces);
         }
-      ));
+      )
+    )
   }
 }

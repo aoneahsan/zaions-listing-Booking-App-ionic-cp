@@ -1,8 +1,8 @@
 {
-  "name": "freelance-portal-ionic-angular",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "name": "ZaionsListing",
+  "version": "1.0.0.",
+  "author": "Ahsan Mahmood",
+  "homepage": "https://aoneahsan.website/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -19,6 +19,7 @@
     "@angular/platform-browser": "~9.1.6",
     "@angular/platform-browser-dynamic": "~9.1.6",
     "@angular/router": "~9.1.6",
+    "@angular/service-worker": "~9.1.6",
     "@capacitor/android": "^2.1.0",
     "@capacitor/core": "2.1.0",
     "@capacitor/ios": "^2.1.0",
@@ -55,5 +56,5 @@
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
   },
-  "description": "An Ionic project"
+  "description": "it was really fun working with Ionic Framework . there are number of features in this app which you will like some of them are 'google maps', 'device camera', 'user location' and much more..."
 }

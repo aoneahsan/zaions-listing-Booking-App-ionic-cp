@@ -1,7 +1,8 @@
 {
-  "name": "Learn ionic",
+  "name": "ZaionsListing",
   "integrations": {
-    "capacitor": {}
+    "capacitor": {},
+    "cordova": {}
   },
   "type": "angular"
 }

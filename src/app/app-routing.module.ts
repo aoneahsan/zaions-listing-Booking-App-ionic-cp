@@ -32,6 +32,14 @@ const routes: Routes = [
     canLoad: [AuthGuard],
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard]
+  },
+  {
+    path: 'about-developer',
+    loadChildren: () => import('./about-developer/about-developer.module').then( m => m.AboutDeveloperPageModule)
+  },
+  {
+    path: 'privacy-policy',
+    loadChildren: () => import('./privacy-policy/privacy-policy.module').then( m => m.PrivacyPolicyPageModule)
   }
 ];
 

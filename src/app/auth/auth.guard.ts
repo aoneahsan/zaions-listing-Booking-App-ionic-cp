@@ -3,6 +3,7 @@ import { CanLoad, Route, UrlSegment, CanActivate, ActivatedRouteSnapshot, Router
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { NavController } from '@ionic/angular';
+import { take, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +16,20 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (!this._authService.isUserLoggedIn) {
-      this._navCtl.navigateRoot('/auth');
-      return;
-    }
-    else if (this._authService.isUserLoggedIn) {
-      return true;
-    }
+    return this._authService.autoLogin().pipe(
+      take(1),
+      map(
+        user => {
+          const isAuth = !!user;
+          if (isAuth) {
+            return true;
+          } else {
+            this._navCtl.navigateRoot(['/auth']);
+            return false;
+          }
+        }
+      )
+    );
   }
 
   canActivateChild(
@@ -32,13 +40,20 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
   }
 
   canLoad(route: Route, segments: UrlSegment[]): Observable<boolean> | Promise<boolean> | boolean {
-    if (!this._authService.isUserLoggedIn) {
-      this._navCtl.navigateRoot('/auth');
-      return;
-    }
-    else if (this._authService.isUserLoggedIn) {
-      return true;
-    }
+    return this._authService.autoLogin().pipe(
+      take(1),
+      map(
+        user => {
+          const isAuth = !!user;
+          if (isAuth) {
+            return true;
+          } else {
+            this._navCtl.navigateRoot(['/auth']);
+            return false;
+          }
+        }
+      )
+    );
   }
 
 }

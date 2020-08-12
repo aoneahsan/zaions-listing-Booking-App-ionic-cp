@@ -1,5 +1,5 @@
 // Core Imports
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
@@ -26,6 +26,7 @@ import { MapModalComponent } from './../../map-modal/map-modal.component';
 
 export class LocationPickerComponent implements OnInit {
 
+  @Input() showPreview: boolean = false;
   @Output() saveLocation = new EventEmitter<PlaceLocation>();
   selectedPlaceImage: string;
   isLoadingPlaceImg: boolean = false;

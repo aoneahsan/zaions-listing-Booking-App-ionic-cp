@@ -138,6 +138,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
                 this._navCtl.navigateRoot(['/bookings']);
               },
               err => {
+                console.log("PlaceDetailPage == err = ", err);
                 alert("Error Occured, while booking place.");
               }
             );

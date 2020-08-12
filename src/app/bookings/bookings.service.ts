@@ -1,7 +1,7 @@
 import { BookingModal } from './booking.modal';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { take, delay, tap, switchMap, map } from 'rxjs/operators';
+import { tap, switchMap, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 
@@ -10,43 +10,6 @@ import { AuthService } from '../auth/auth.service';
 })
 export class BookingService {
 
-    dummyBooking: BookingModal[] = [
-        new BookingModal(
-            'b1',
-            'p1',
-            'u1',
-            'Lahore',
-            'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
-            'ahsan',
-            'mahmood',
-            3,
-            new Date("2020-01-01"),
-            new Date("2020-11-01")
-        ),
-        new BookingModal(
-            'b2',
-            'p2',
-            'u2',
-            'Lahore 2',
-            'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
-            'ahsan',
-            'mahmood',
-            30,
-            new Date("2020-01-01"),
-            new Date("2020-11-01")
-        ),
-        new BookingModal(
-            'b3',
-            'p3',
-            'u3',
-            'Lahore 3',
-            'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
-            'ahsan',
-            'mahmood',
-            13,
-            new Date("2020-01-01"),
-            new Date("2020-11-01"))
-    ];
     private _bookings: BehaviorSubject<BookingModal[]> = new BehaviorSubject<BookingModal[]>(null);
 
     constructor(
@@ -55,9 +18,17 @@ export class BookingService {
     ) { }
 
     fetchBookings() {
-        return this._http.get<{ [key: string]: BookingModal }>(
-            `https://ionic-course-project-a4b04.firebaseio.com/bookings.json?orderBy="userID"&equalTo="${this._authService.UserID}"`
-        ).pipe(
+        return this._authService.userTokken.pipe(
+            switchMap(tokken => {
+                if (!!tokken) {
+                    return this._http.get<{ [key: string]: BookingModal }>(
+                        `https://ionic-course-project-a4b04.firebaseio.com/bookings.json?auth=${tokken}&orderBy="userID"&equalTo="${this._authService.UserID}"`
+                    );
+                }
+                else {
+                    this._authService.logout();
+                }
+            }),
             map(res => {
                 let newBookings: BookingModal[] = [];
                 for (const key in res) {
@@ -101,10 +72,18 @@ export class BookingService {
     }
 
     placeBooking(data: BookingModal) {
-        return this._http.post<any>(
-            `https://ionic-course-project-a4b04.firebaseio.com/bookings.json`,
-            { ...data, id: null }
-        ).pipe(
+        return this._authService.userTokken.pipe(
+            switchMap(tokken => {
+                if (!!tokken) {
+                    return this._http.post<any>(
+                        `https://ionic-course-project-a4b04.firebaseio.com/bookings.json?auth=${tokken}`,
+                        { ...data, id: null }
+                    )
+                }
+                else {
+                    this._authService.logout();
+                }
+            }),
             tap(res => {
                 let newBooking = new BookingModal(
                     res.name,
@@ -119,16 +98,30 @@ export class BookingService {
                     new Date(data.date_to)
                 );
                 let bookings = this._bookings.value;
-                this.setBookings(bookings.concat(newBooking));
+                if (!!bookings && bookings.length > 0) {
+                    bookings.push(newBooking);
+                } else {
+                    bookings = [];
+                    bookings.push(newBooking)
+                }
+                this.setBookings(bookings);
             })
         );
     }
 
     cancelBooking(bookingID) {
         let bookings = this._bookings.value;
-        return this._http.delete<any>(
-            `https://ionic-course-project-a4b04.firebaseio.com/bookings/${bookingID}.json`
-        ).pipe(
+        return this._authService.userTokken.pipe(
+            switchMap(tokken => {
+                if (!!tokken) {
+                    return this._http.delete<any>(
+                        `https://ionic-course-project-a4b04.firebaseio.com/bookings/${bookingID}.json?auth=${tokken}`
+                    );
+                }
+                else {
+                    this._authService.logout();
+                }
+            }),
             tap(res => {
                 this.setBookings(bookings.filter(el => el.id != bookingID));
             })

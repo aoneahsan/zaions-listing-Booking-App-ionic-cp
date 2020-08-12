@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PlaceModel } from '../place-model';
 import { PlacesService } from '../places.service';
 import { Subscription } from 'rxjs';
+import { IonItemSliding, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-offers',
@@ -15,7 +16,8 @@ export class OffersPage implements OnInit, OnDestroy {
   private fetchPlacesSub: Subscription;
 
   constructor(
-    private _placeService: PlacesService
+    private _placeService: PlacesService,
+    private _navCtl: NavController
   ) { }
 
   ngOnInit() {
@@ -39,5 +41,10 @@ export class OffersPage implements OnInit, OnDestroy {
     if (this.fetchPlacesSub) {
       this.fetchPlacesSub.unsubscribe();
     }
+  }
+
+  onEdit(item: PlaceModel, slidingItem: IonItemSliding) {
+    slidingItem.close();
+    this._navCtl.navigateForward('/places/tabs/offers/' + item.id);
   }
 }
