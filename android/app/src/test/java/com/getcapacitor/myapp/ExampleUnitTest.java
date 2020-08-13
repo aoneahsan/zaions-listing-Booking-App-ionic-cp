@@ -1,4 +1,4 @@
-package com.zaions.zaionslisting;
+package com.getcapacitor.myapp;
 
 import org.junit.Test;
 

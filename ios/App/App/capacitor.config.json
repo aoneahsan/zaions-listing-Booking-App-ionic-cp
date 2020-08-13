@@ -1,6 +1,6 @@
 {
-  "appId": "com.zaions.ioniclearn",
-  "appName": "B2B Listing",
+  "appId": "com.zaions.zaionslisting",
+  "appName": "ZaionsListing",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
