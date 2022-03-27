@@ -25,7 +25,6 @@ export class AuthPage implements OnInit, OnDestroy {
   }
 
   onSubmit(data) {
-    console.log("Auth Data = ", data);
     let authObservable: Observable<AuthResponse>;
     this._loadingCtl.create({ keyboardClose: true, message: "Loading..." }).then(
       loadingEl => {
