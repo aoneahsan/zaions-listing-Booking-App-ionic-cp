@@ -26,9 +26,6 @@ import { ImagePickerComponent } from 'src/app/shared/pickers/image-picker/image-
         MapModalComponent,
         LocationPickerComponent,
         ImagePickerComponent
-    ],
-    entryComponents: [
-        CreateBookingComponent
     ]
 })
 export class SharedModule { }
